@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>My Old Kentucky Home</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+<h1 id="title">My Old Kentucky Home</h1>
+
+<video src="https://www.cs.tufts.edu/comp/20/my_old_kentucky_home.mp4" id="music_video" controls></video>
+<div id="lyrics"></div>
+
+<script>
+
+	var musicVideo = document.getElementById("music_video");
+	var lyrics = document.getElementById("lyrics");
+	
+	musicVideo.addEventListener("timeupdate", displayLyrics);
+	
+	document.open();
+	
+	function displayLyrics() {
+		if (musicVideo.currentTime < 8) {
+			lyrics.innerHTML = " ";
+		}
+		if (musicVideo.currentTime >= 8 && musicVideo.currentTime < 15) {
+			lyrics.innerHTML = "The sun shines bright in My Old Kentucky Home,";
+		}
+		if (musicVideo.currentTime >= 15 && musicVideo.currentTime < 22) {
+			lyrics.innerHTML = "'Tis summer, the people are gay;";
+		}
+		if (musicVideo.currentTime >= 22 && musicVideo.currentTime < 28) {
+			lyrics.innerHTML = "The corn-top's ripe and the meadow's in the bloom"
+			lyrics.innerHTML += "<p><img src=corn.jpg></img></p>";
+		}
+		if (musicVideo.currentTime >= 28 && musicVideo.currentTime < 36) {
+			lyrics.innerHTML = "While the birds make music all the day."
+			lyrics.innerHTML += "<p><img src=bird.jpg></img></p>";
+		}
+		if (musicVideo.currentTime >= 36 && musicVideo.currentTime < 42) {
+			lyrics.innerHTML = "The young folks roll on the little cabin floor,";
+		}
+		if (musicVideo.currentTime >= 42 && musicVideo.currentTime < 49) {
+			lyrics.innerHTML = "All merry, all happy and bright;";
+		}
+		if (musicVideo.currentTime >= 49 && musicVideo.currentTime < 56) {
+			lyrics.innerHTML = "By 'n' by hard times comes a knocking at the door,";
+		}
+		if (musicVideo.currentTime >= 56 && musicVideo.currentTime < 64) {
+			lyrics.innerHTML = "Then My Old Kentucky Home, good night!";
+		}
+		if (musicVideo.currentTime >= 64 && musicVideo.currentTime < 69) {
+			lyrics.innerHTML = "Weep no more my lady";
+		}
+		if (musicVideo.currentTime >= 69 && musicVideo.currentTime < 77) {
+			lyrics.innerHTML = "Oh weep no more today;";
+		}
+		if (musicVideo.currentTime >= 77 && musicVideo.currentTime < 80) {
+			lyrics.innerHTML = "We will sing one song";
+		}
+		if (musicVideo.currentTime >= 80 && musicVideo.currentTime < 84) {
+			lyrics.innerHTML = "For My Old Kentucky Home";
+		}
+		if (musicVideo.currentTime >= 84) {
+			lyrics.innerHTML = "For My Old Kentucky Home, far away";
+		}
+	}
+	document.close();
+</script>
+</body>
+</html>
