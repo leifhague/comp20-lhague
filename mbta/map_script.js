@@ -85,7 +85,7 @@ function map_init()
 	var userLatLng = new google.maps.LatLng(0, 0); // placeholder
 	var userMarker;
 	
-	// Make sure this updates properly
+	// Find user's location
 	navigator.geolocation.getCurrentPosition(function(position) {
 		userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		var marker = new google.maps.Marker({
@@ -120,6 +120,7 @@ function map_init()
 	
 	for (var i = 1; i < mainStops.length; i++) {
 		console.log(i);
+		// Section copied from StackOverflow
 		var lat2 = mainStops[i].lat(); 
 		var lon2 = mainStops[i].lng(); 
 		var lat1 = userLatLng.lat(); 
@@ -141,6 +142,7 @@ function map_init()
 			closestStopPos = mainStops[i];
 			closestStop = mainStopNames[i];
 		}
+		// End section copied from StackOverflow
 	}
 }
 

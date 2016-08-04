@@ -1,8 +1,12 @@
-README for COMP 20 Lab 8
+README for COMP 20 Lab 10
 by Leif Hague
 
-As far as I know, all parts of this assignment have been implemented correctly.
+Unfortunately, my implementation of this lab currently has a number of problems:
+-While the distance to the nearest T station is calculated, it is not displayed
+-The polyline connecting the user's location to the nearest T stop marker is not drawn
+-The JSON API for red line trains is not accessed
 
-I did not discuss the lab with anyone.
+Code from http://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
+is incorporated into lab.js, marked by comments.
 
-This lab took approximately 1.5 hours to complete.
+I worked on this lab for approximately 3.5 hours.
