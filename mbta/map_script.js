@@ -1,5 +1,12 @@
 function map_init()
 {	
+	var request = new XMLHttpRequest();
+	var tData;
+	
+	request.open("GET", "https://powerful-depths-66091.herokuapp.com/redline.json", true);
+	
+	
+
 	var mainStops = [];
 	mainStops.push(new google.maps.LatLng(42.395428, -71.142483)); // Alewife
 	mainStops.push(new google.maps.LatLng(42.39674, -71.121815)); // Davis
@@ -32,6 +39,9 @@ function map_init()
 	branchStops.push(new google.maps.LatLng(42.300093, -71.061667)); // Fields Corner
 	branchStops.push(new google.maps.LatLng(42.29312583, -71.06573796000001)); // Shawmut
 	branchStops.push(new google.maps.LatLng(42.284652, -71.06448899999999)); // Ashmont
+	
+	var branchStopNames = ["JFK/UMass", "Savin Hill", "Fields Corner", "Shawmut",
+						   "Ashmont"];
 
 	var mapSettings = {
 		zoom: 5,
@@ -88,29 +98,76 @@ function map_init()
 		title: "Position"
 	});
 	
+	
+	var closestStop = mainStopNames[0];
+	var DistString;
+	
 	// Find user's location
 	navigator.geolocation.getCurrentPosition(function(position) {
 		userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		userMarker.setPosition(userLatLng);
 		userMarker.setMap(map);
+	
+		// Find the closest T station
+		var closestStopPos = mainStops[0];
+		var closestStopDist = computeDistance(closestStopPos.lat(), closestStopPos.lng(), userLatLng.lat(), userLatLng.lng());
+	
+		for (var i = 1; i < mainStops.length; i++) {
+			var stopDist = computeDistance(mainStops[i].lat(), mainStops[i].lng(), userLatLng.lat(), userLatLng.lng());
+	
+			if (stopDist < closestStopDist) {
+				closestStopDist = stopDist;
+				closestStopPos = mainStops[i];
+				closestStop = mainStopNames[i];
+			}
+		}
+		
+		for (var i = 1; i < branchStops.length; i++) {
+			var stopDist = computeDistance(branchStops[i].lat(), branchStops[i].lng(), userLatLng.lat(), userLatLng.lng());
+	
+			if (stopDist < closestStopDist) {
+				closestStopDist = stopDist;
+				closestStopPos = branchStops[i];
+				closestStop = branchStopNames[i];
+			}
+		}
+	
+		distString = closestStopDist.toString();
+		
+		var closestStopPath = [];
+		closestStopPath.push(userLatLng);
+		closestStopPath.push(closestStopPos);
+	
+		var closestStopLine = new google.maps.Polyline({
+			path: closestStopPath,
+			geodesic: true,
+			strokeColor: "blue",
+			strokeOpacity: 1.0,
+			strokeWeight: 2
+		});
+		
+		closestStopLine.setMap(map);
 	});
 	
-	//var userMarker = new google.maps.Marker({
-	//	position: userLatLng,
-	//	title: "Position"
-	//});
-	//userMarker.setMap(map);
+	var infowindow = new google.maps.InfoWindow();
 	
-	// Find the closest T station
-	var closestStopPos = mainStops[0];
-	var closestStop = mainStopNames[0];
-	
-	// This section copied from StackOverflow, with some changes
-	var lat2 = closestStopPos.lat(); 
-	var lon2 = closestStopPos.lng(); 
-	var lat1 = userLatLng.lat(); 
-	var lon1 = userLatLng.lng(); 
+	google.maps.event.addListener(userMarker, 'click', function() {
+		infowindow.setContent("The closest T stop, " + closestStop + ", is " + distString + " miles away");
+		infowindow.open(map, userMarker);
+	});
 
+	request.onreadystatechange = function() {
+		if (request.readyState == 4 && request.status == 200) {
+			messageData = request.responseText;
+			
+			var dataObj = JSON.parse(messageData);
+			//apply retrieved data to T stop markers
+		}
+	};
+}
+
+// Adapted from StackOverflow
+function computeDistance(lat2, lon2, lat1, lon1) {
 	var R = 6371; // km
 	var x1 = lat2-lat1;
 	var dLat = x1.toRad();  
@@ -120,58 +177,9 @@ function map_init()
 					Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
 					Math.sin(dLon/2) * Math.sin(dLon/2);  
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-	var closestStopDist = R * c; 
-	// End section copied from StackOverflow
-	
-	for (var i = 1; i < mainStops.length; i++) {
-		console.log(i);
-		// Section copied from StackOverflow, with changes
-		var lat2 = mainStops[i].lat(); 
-		var lon2 = mainStops[i].lng(); 
-		var lat1 = userLatLng.lat(); 
-		var lon1 = userLatLng.lng(); 
+	var stopDist = R * c * 0.621371; 
 
-		var R = 6371; // km
-		var x1 = lat2-lat1;
-		var dLat = x1.toRad();  
-		var x2 = lon2-lon1;
-		var dLon = x2.toRad();  
-		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-						Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
-						Math.sin(dLon/2) * Math.sin(dLon/2);  
-		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-		var stopDist = R * c; 
-	
-		if (stopDist < closestStopDist) {
-			closestStopDist = stopDist;
-			closestStopPos = mainStops[i];
-			closestStop = mainStopNames[i];
-		}
-		// End section copied from StackOverflow
-	}
-	
-	distString = closestStopDist.toString();
-	
-	var infowindow = new google.maps.InfoWindow();
-	
-	google.maps.event.addListener(userMarker, 'click', function() {
-		infowindow.setContent("The closest T stop, " + closestStop + ", is " + distString + " away");
-		infowindow.open(map, userMarker);
-	});
-	
-	var closestStopPath = [];
-	closestStopPath.push(userLatLng);
-	closestStopPath.push(closestStopPos);
-	
-	var closestStopLine = new google.maps.Polyline({
-		path: closestStopPath,
-		geodesic: true,
-		strokeColor: "#FF0000",
-		strokeOpacity: 1.0,
-		strokeWeight: 2
-	});
-	
-	
+	return stopDist;
 }
 
 // Copied from StackOverflow
