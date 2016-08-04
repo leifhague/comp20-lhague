@@ -20,6 +20,12 @@ function map_init()
 	mainStops.push(new google.maps.LatLng(42.233391, -71.007153)); // Quincy Adams
 	mainStops.push(new google.maps.LatLng(42.2078543, -71.0011385)); // Braintree
 	
+	var mainStopNames = ["Alewife", "Davis", "Porter Square", "Harvard Square",
+						 "Central Square", "Kendall/MIT", "Charles/MGH", "Park Street",
+						 "Downtown Crossing", "South Station", "Broadway", "Andrew",
+						 "JFK/UMASS", "North Quincy", "Wollaston", "Quincy Center",
+						 "Quincy Adams", "Braintree"];
+	
 	var branchStops = [];
 	branchStops.push(new google.maps.LatLng(42.320685, -71.052391)); // JFK/UMass
 	branchStops.push(new google.maps.LatLng(42.31129, -71.053331)); // Savin Hill
@@ -75,4 +81,71 @@ function map_init()
 	
 	redLineMain.setMap(map);
 	redLineBranch.setMap(map);
+	
+	var userLatLng = new google.maps.LatLng(0, 0); // placeholder
+	var userMarker;
+	
+	// Make sure this updates properly
+	navigator.geolocation.getCurrentPosition(function(position) {
+		userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+		var marker = new google.maps.Marker({
+			position: userLatLng,
+			title: "Position"
+		});
+		marker.setMap(map);
+		userMarker = marker;
+	});
+	
+	// Find the closest T station
+	var closestStopPos = mainStops[0];
+	var closestStop = mainStopNames[0];
+	
+	// This section copied from StackOverflow, with some changes
+	var lat2 = closestStopPos.lat(); 
+	var lon2 = closestStopPos.lng(); 
+	var lat1 = userLatLng.lat(); 
+	var lon1 = userLatLng.lng(); 
+
+	var R = 6371; // km
+	var x1 = lat2-lat1;
+	var dLat = x1.toRad();  
+	var x2 = lon2-lon1;
+	var dLon = x2.toRad();  
+	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+					Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+					Math.sin(dLon/2) * Math.sin(dLon/2);  
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+	var closestStopDist = R * c; 
+	// End section copied from StackOverflow
+	
+	for (var i = 1; i < mainStops.length; i++) {
+		console.log(i);
+		var lat2 = mainStops[i].lat(); 
+		var lon2 = mainStops[i].lng(); 
+		var lat1 = userLatLng.lat(); 
+		var lon1 = userLatLng.lng(); 
+
+		var R = 6371; // km
+		var x1 = lat2-lat1;
+		var dLat = x1.toRad();  
+		var x2 = lon2-lon1;
+		var dLon = x2.toRad();  
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+						Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+						Math.sin(dLon/2) * Math.sin(dLon/2);  
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+		var stopDist = R * c; 
+	
+		if (stopDist < closestStopDist) {
+			closestStopDist = stopDist;
+			closestStopPos = mainStops[i];
+			closestStop = mainStopNames[i];
+		}
+	}
+}
+
+// Copied from StackOverflow
+// Used for Haversine Formula
+Number.prototype.toRad = function() {
+   return this * Math.PI / 180;
 }
