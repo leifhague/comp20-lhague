@@ -34,7 +34,7 @@ function map_init()
 	branchStops.push(new google.maps.LatLng(42.284652, -71.06448899999999)); // Ashmont
 
 	var mapSettings = {
-		zoom: 12,
+		zoom: 5,
 		center: mainStops[9], // centered at South Station
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
@@ -83,18 +83,23 @@ function map_init()
 	redLineBranch.setMap(map);
 	
 	var userLatLng = new google.maps.LatLng(0, 0); // placeholder
-	var userMarker;
+	var userMarker = new google.maps.Marker({ // placeholder
+		position: userLatLng,
+		title: "Position"
+	});
 	
 	// Find user's location
 	navigator.geolocation.getCurrentPosition(function(position) {
 		userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		var marker = new google.maps.Marker({
-			position: userLatLng,
-			title: "Position"
-		});
-		marker.setMap(map);
-		userMarker = marker;
+		userMarker.setPosition(userLatLng);
+		userMarker.setMap(map);
 	});
+	
+	//var userMarker = new google.maps.Marker({
+	//	position: userLatLng,
+	//	title: "Position"
+	//});
+	//userMarker.setMap(map);
 	
 	// Find the closest T station
 	var closestStopPos = mainStops[0];
@@ -120,7 +125,7 @@ function map_init()
 	
 	for (var i = 1; i < mainStops.length; i++) {
 		console.log(i);
-		// Section copied from StackOverflow
+		// Section copied from StackOverflow, with changes
 		var lat2 = mainStops[i].lat(); 
 		var lon2 = mainStops[i].lng(); 
 		var lat1 = userLatLng.lat(); 
@@ -144,6 +149,29 @@ function map_init()
 		}
 		// End section copied from StackOverflow
 	}
+	
+	distString = closestStopDist.toString();
+	
+	var infowindow = new google.maps.InfoWindow();
+	
+	google.maps.event.addListener(userMarker, 'click', function() {
+		infowindow.setContent("The closest T stop, " + closestStop + ", is " + distString + " away");
+		infowindow.open(map, userMarker);
+	});
+	
+	var closestStopPath = [];
+	closestStopPath.push(userLatLng);
+	closestStopPath.push(closestStopPos);
+	
+	var closestStopLine = new google.maps.Polyline({
+		path: closestStopPath,
+		geodesic: true,
+		strokeColor: "#FF0000",
+		strokeOpacity: 1.0,
+		strokeWeight: 2
+	});
+	
+	
 }
 
 // Copied from StackOverflow
