@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Security Report</title>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+	<h2>"Not Foursquare" Security Report</h2>
+	<h1>Introduction</h1>
+	<p>I analyzed the “Not Foursquare” web application for security and privacy flaws.
+	This app allows users to “check in” by sending data to the server, and stores a record
+	of all of the check-ins in a database.  Users can view the list of previous check-ins by
+	visiting www.vurnerableapp.herokuapp.com, and can search the database using query strings at
+	www.vulnerableapp.herokuapp.com/checkins.json.</p>
+	<h1>Methodology</h1>
+	<p>I used the curl command line tool and the Mozilla Firefox web browser to send
+	requests to the server.  In places where the website accepts input, I used a variety
+	of input strings and known exploits to try to break the application.  I also looked
+	at the source code in order to find less obvious vulnerabilities.</p>
+	<h1>Abstract of Findings</h1>
+	<h3>1. XSS Vulnerability</h3>
+	<p>The user-defined variable login is added to the database, and later displayed on
+	the webpage, without any verification or modification of its contents, which presents
+	a major problem.  This variable could contain anything, including a malicious script.
+	Since the contents of login are put into an html file which is displayed anytime a client
+	accesses the “Not Foursquare” homepage, any code that is added to the login field will
+	execute on each client’s machine.  Fortunately, this problem can be solved with minor
+	changes to server-vuln.js.  Before the user-set value of login is added to the database,
+	html tags need to be removed from it.  This can be accomplished with a package such as
+	sanitize-html https://www.npmjs.com/package/sanitize-html.</p>
+	<h3>2. Cross Domain Requests are Enabled for all Domains</h3>
+	<p>On the /sendLocation route, cross domain resource sharing is enabled for all
+	domains.  This means that client side scripts originating at any domain could check in
+	and receive back the list of all check-ins in the database.  Thus it would
+	be possible for third parties to display the information provided at vulnerableapp.herokuapp.com
+	in real time, potentially drawing away users.  CORS should not be available
+	for all domains unless the purpose of the app is to provide a service to be used in
+	client-side scripts.  If there are specific third parties that should be allowed to access this
+	application, they can be whitelisted by replacing the asterisk with the name(s) of the
+	domain()s in the line of code response.header(“Access-Control-Allow-Origin”, “*”);.</p>
+	<h3>3. The Database has no Password/Security</h3>
+	<p>It appears that the security of the database used by this
+	project is lax.  Based on the JavaScript code used to access the MongoDB, the database
+	doesn't seem to be password protected.  This means that the database can be accessed with
+	knowledge of the machine’s IP address and the port number that is being used.
+	The IP address is accessible by anyone who knows the URL of the website, while the
+	default ports used by MongoDB can be found online.  While I was unable to
+	access the database in this instance -- the server rejects the connect --
+	the database's complete reliance on external security measures seems like a liability
+	considering the security nightmare that could result from the database being accessed
+	without authorization. In the event that attackers accessed that database, they could edit
+	it at will and see all of the information contained in it.  Fortunately, it is not difficult
+	to add password-protected accounts to a database.</p>
+	<h1>Conclusion</h1>
+	<p>While the "Not Foursquare" web app is currently lacking in security, the most serious
+	problems are not difficult to fix.  Simply using a package to remove html from the
+	user input would go a long way.  It would also be advisable to put a password on the
+	database.  These changes would be inexpensive to make -- only the cost of labor would
+	be required.</p>
+	</body>
+
+</html>

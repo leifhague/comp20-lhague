@@ -1,0 +1,41 @@
+h1 {
+	color: black;
+	font-family: Times;
+	font-weight: bold;
+	font-size: 12pt;
+	text-align: left;
+	margin-bottom: 0px;
+}
+
+h2 {
+	color: black;
+	font-family: Times;
+	font-weight: bold;
+	font-size: 14pt;
+	text-align: left;
+	margin-bottom: 5px;
+}
+
+h3 {
+	color: black;
+	font-family: Times;
+	font-weight: normal;
+	font-size: 12pt;
+	text-align: left;
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+
+p {
+	font-family: Times;
+	color: black;
+	font-weight: normal;
+	font-size: 12pt;
+	text-align: left;
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
+body {
+	background-color: LemonChiffon;
+}
